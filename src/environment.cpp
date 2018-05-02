@@ -44,7 +44,7 @@ std::vector<Edge> Environment::apply_mprims(
             for (int az = -max_idx_a_; az <= max_idx_a_; az++) {
                 Edge e;
                 e.s1 = s;
-                e.cost = dt_;
+                e.cost = dt_ + 0.01 * std::sqrt(ax*ax + ay*ay + az*az) * max_a_;
 
                 State* s2 = new State();
                 s2->idx_px = s->idx_px + s->idx_vx * 2 + ax;
