@@ -74,6 +74,7 @@ bool AraStar::replan(double eps)
             s->f = s->g + eps * env_->get_heuristic(s->state);
             new_open.push(s);
         }
+        incons.clear();
 
         open_.swap(new_open);
     }
@@ -85,7 +86,7 @@ bool AraStar::replan(double eps)
             return false;
         }
 
-        if (goal_node_ != nullptr && goal_node_->f <= open_.top()->f) {
+        if (goal_node_ != nullptr && goal_node_->g <= open_.top()->f) {
             // Done this round
             ROS_WARN("DONE WITH EPS=%f", eps);
             return true;
