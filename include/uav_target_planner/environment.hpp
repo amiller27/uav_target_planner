@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "uav_target_planner/bounds.hpp"
 #include "uav_target_planner/edge.hpp"
 #include "uav_target_planner/utils.hpp"
 #include "uav_target_planner/occupancy_grid.hpp"
@@ -10,19 +11,6 @@
 #include "uav_target_planner/waypoint.hpp"
 
 namespace uav_target_planner {
-
-struct Bounds {
-    double min_px;
-    double max_px;
-    double min_py;
-    double max_py;
-    double min_pz;
-    double max_pz;
-    double max_vx;
-    double max_vy;
-    double max_vz;
-    double max_t;
-};
 
 class Environment
 {

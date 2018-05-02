@@ -153,8 +153,8 @@ Environment::Environment(double p_tol,
       bounds_(bounds),
       max_a_(max_a),
       max_idx_a_(na),
-      heur_dt_(0.001),
-      ogrid_(new OccupancyGrid()),
+      heur_dt_(0.05),
+      ogrid_(new OccupancyGrid(bounds, dp_)),
       target_(target)
 {
 }

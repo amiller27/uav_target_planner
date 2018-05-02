@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <memory>
 #include <queue>
 #include <unordered_map>
@@ -34,6 +35,8 @@ bool AraStar::search()
     ROS_WARN("START");
     env_->logger.publish_start(start_state_, env_);
 
+    const auto t_start = std::chrono::high_resolution_clock::now();
+
     std::shared_ptr<Node> start_node (new Node());
     start_node->state = start_state_;
     start_node->g = 0;
@@ -42,7 +45,7 @@ bool AraStar::search()
     open.push(std::move(start_node));
     nodes.insert({*start_state_, start_node});
 
-    int i = 0;
+    int expansions = 0;
     while (open.size() != 0) {
         std::shared_ptr<Node> s = open.top();
         open.pop();
@@ -51,9 +54,8 @@ bool AraStar::search()
         s->open = false;
         s->closed = true;
 
-        i++;
-        ROS_WARN_THROTTLE(0.3, "%d %f %f", i, s->g, s->f);
-        if (i == 1000) return false;
+        expansions++;
+        ROS_WARN_THROTTLE(0.3, "%d %f %f", expansions, s->g, s->f);
         env_->logger.publish_state(s->state, env_);
 
         if (!std::isfinite(s->f)) {
@@ -63,7 +65,13 @@ bool AraStar::search()
         }
 
         if (env_->is_goal(s->state)) {
-            std::cout << "GOAL" << std::endl;
+            ROS_WARN("GOAL");
+            const auto t_end = std::chrono::high_resolution_clock::now();
+            ROS_WARN_STREAM("Planning time: "
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start).count()
+                    << "ms");
+            ROS_WARN_STREAM("Expansions: " << expansions);
+            ROS_WARN_STREAM("Cost (s): " << s->g);
             // Found goal!
             env_->logger.publish_goal(s->state, env_);
             goal_node_ = s;

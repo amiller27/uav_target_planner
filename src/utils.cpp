@@ -118,6 +118,8 @@ void Logger::publish()
     m.color.g = 1.0;
     m.color.b = 0.0;
 
+    m.points = target_traj_;
+
     marker_pub_.publish(m);
 
     m.ns = "start";
