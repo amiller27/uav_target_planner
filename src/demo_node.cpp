@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     ROS_WARN_STREAM("Planning...");
     AraStar planner (3.0, env, s);
     bool result = planner.search();
-    ROS_WARN_STREAM("Result: " << result);
+    ROS_WARN_STREAM("Result: " << (result ? "SUCCESS" : "FAILED"));
 
     if (result) {
         std::vector<Waypoint> traj = planner.get_path();

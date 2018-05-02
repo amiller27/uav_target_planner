@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
-#include <queue>
-#include <unordered_map>
 
 #include <ros/ros.h>
 
@@ -17,45 +15,91 @@ AraStar::AraStar(double eps,
                  std::shared_ptr<State>& start)
     : eps_(eps),
       env_(env),
-      start_state_(start)
+      start_state_(start),
+      open_(comp_)
 {
-}
-
-bool AraStar::search()
-{
-    const auto comp = [](const std::shared_ptr<const Node>& a,
-                         const std::shared_ptr<const Node>& b) { return a->f > b->f; };
-    std::priority_queue<std::shared_ptr<Node>,
-                        std::vector<std::shared_ptr<Node>>,
-                        decltype(comp)>
-        open (comp);
-
-    std::unordered_map<State, std::shared_ptr<Node>> nodes;
-
-    ROS_WARN("START");
-    env_->logger.publish_start(start_state_, env_);
-
-    const auto t_start = std::chrono::high_resolution_clock::now();
-
     std::shared_ptr<Node> start_node (new Node());
     start_node->state = start_state_;
     start_node->g = 0;
     start_node->f = eps_ * env_->get_heuristic(start_node->state);
     start_node->open = true;
-    open.push(std::move(start_node));
+    open_.push(std::move(start_node));
     nodes.insert({*start_state_, start_node});
+}
+
+bool AraStar::search()
+{
+    ROS_WARN("START");
+    env_->logger.publish_start(start_state_, env_);
+
+    t_start_ = std::chrono::high_resolution_clock::now();
+    t_stop_ = t_start_ + std::chrono::milliseconds(300);
+
+    double eps = eps_;
+    bool result = false;
+    while (eps > 1.0) {
+        eps -= 0.3;
+        if (eps < 1.0) eps = 1.0;
+
+        result = replan(eps) || result;
+
+        if (std::chrono::high_resolution_clock::now() > t_stop_) break;
+    }
+
+    if (result) {
+        env_->logger.publish_goal(goal_node_->state, env_);
+    }
+
+    return result;
+}
+
+bool AraStar::replan(double eps)
+{
+
+    {
+        std::priority_queue<std::shared_ptr<Node>,
+                            std::vector<std::shared_ptr<Node>>,
+                            decltype(comp_)>
+            new_open (comp_);
+        while (!open_.empty()) {
+            std::shared_ptr<Node> s = open_.top();
+            open_.pop();
+            if (s->donezo) continue;
+            s->f = s->g + eps * env_->get_heuristic(s->state);
+            new_open.push(s);
+        }
+
+        for (auto& p : incons) {
+            std::shared_ptr<Node> s = p.second;
+            s->f = s->g + eps * env_->get_heuristic(s->state);
+            new_open.push(s);
+        }
+
+        open_.swap(new_open);
+    }
 
     int expansions = 0;
-    while (open.size() != 0) {
-        std::shared_ptr<Node> s = open.top();
-        open.pop();
+    while (open_.size() != 0) {
+        if (std::chrono::high_resolution_clock::now() > t_stop_) {
+            ROS_ERROR("OUT OF TIME");
+            return false;
+        }
+
+        if (goal_node_ != nullptr && goal_node_->f <= open_.top()->f) {
+            // Done this round
+            ROS_WARN("DONE WITH EPS=%f", eps);
+            return true;
+        }
+
+        std::shared_ptr<Node> s = open_.top();
+        open_.pop();
         if (s->donezo) continue;
 
         s->open = false;
         s->closed = true;
+        s->v = s->g;
 
         expansions++;
-        ROS_WARN_THROTTLE(0.3, "%d %f %f", expansions, s->g, s->f);
         env_->logger.publish_state(s->state, env_);
 
         if (!std::isfinite(s->f)) {
@@ -64,32 +108,31 @@ bool AraStar::search()
             continue;
         }
 
-        if (env_->is_goal(s->state)) {
+        if (env_->is_goal(s->state) && (goal_node_ == nullptr || goal_node_->g > s->g)) {
             ROS_WARN("GOAL");
             const auto t_end = std::chrono::high_resolution_clock::now();
             ROS_WARN_STREAM("Planning time: "
-                    << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start).count()
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start_).count()
                     << "ms");
             ROS_WARN_STREAM("Expansions: " << expansions);
             ROS_WARN_STREAM("Cost (s): " << s->g);
             // Found goal!
-            env_->logger.publish_goal(s->state, env_);
             goal_node_ = s;
             return true;
         }
 
         for (auto& e : env_->get_successors(s->state)) {
             bool already_created = (nodes.count(*e.s2) != 0);
+            double new_g = s->g + e.cost;
             if (!already_created || !nodes[*e.s2]->closed) {
-                double new_g = s->g + e.cost;
                 if (!already_created || new_g < nodes[*e.s2]->g) {
                     std::shared_ptr<Node> node (new Node());
                     node->state = e.s2;
                     node->g = new_g;
-                    node->f = new_g + eps_ * env_->get_heuristic(e.s2);
+                    node->f = new_g + eps * env_->get_heuristic(e.s2);
                     node->backp = s;
                     node->open = true;
-                    open.push(node);
+                    open_.push(node);
 
                     if (already_created) {
                         // Remove node from OPEN
@@ -98,6 +141,12 @@ bool AraStar::search()
                     }
 
                     nodes.insert({*e.s2, node});
+                }
+            } else {
+                // already created and closed
+                nodes[*e.s2]->g = new_g;
+                if (incons.count(*e.s2) == 0) {
+                    incons.insert({*e.s2, nodes[*e.s2]});
                 }
             }
         }
