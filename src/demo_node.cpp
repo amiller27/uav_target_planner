@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     target->dt = 10.0;
 
     std::shared_ptr<Environment> env = std::make_shared<Environment>(
-            1.4, 3.4, dt, max_a, na, bounds, target);
+            1.4, 1.4, dt, max_a, na, bounds, target);
     ros::Duration(2.0).sleep();
 
     // dp should be 0.5 * 5.0 * 0.2^2 = .1
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     env->logger.publish_target(target, 10);
 
     ROS_WARN_STREAM("Planning...");
-    AraStar planner (1.0, env, s);
+    AraStar planner (10.0, env, s);
     bool result = planner.search();
     ROS_WARN_STREAM("Result: " << result);
 

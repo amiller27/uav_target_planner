@@ -87,15 +87,23 @@ double Environment::get_inf_vel_heuristic_1d(double x0,
     double t3 = (-2 * v0 - dv + 2 * std::sqrt(D)) / a;
     double t4 = (-2 * v0 - dv - 2 * std::sqrt(D)) / a;
 
-    if (std::isnan(t1) || t1 < 0) t1 = std::numeric_limits<double>::infinity();
-    if (std::isnan(t2) || t2 < 0) t2 = std::numeric_limits<double>::infinity();
-    if (std::isnan(t3) || t3 < 0) t3 = std::numeric_limits<double>::infinity();
-    if (std::isnan(t4) || t4 < 0) t4 = std::numeric_limits<double>::infinity();
+    double tsw1 = 0.5*(dv/max_a_ + t1);
+    double tsw2 = 0.5*(dv/max_a_ + t2);
+    double tsw3 = 0.5*(dv/-max_a_ + t3);
+    double tsw4 = 0.5*(dv/-max_a_ + t4);
+    if (std::isnan(t1) || t1 < 0 || tsw1 < 0 || tsw1 > t1)
+        t1 = std::numeric_limits<double>::infinity();
+    if (std::isnan(t2) || t2 < 0 || tsw2 < 0 || tsw2 > t2)
+        t2 = std::numeric_limits<double>::infinity();
+    if (std::isnan(t3) || t3 < 0 || tsw3 < 0 || tsw3 > t3)
+        t3 = std::numeric_limits<double>::infinity();
+    if (std::isnan(t4) || t4 < 0 || tsw4 < 0 || tsw4 > t4)
+        t4 = std::numeric_limits<double>::infinity();
 
     double result = std::min({t1, t2, t3, t4});
 
     if (std::isinf(result)) {
-        std::cout << x0 << " "
+        ROS_WARN_STREAM(x0 << " "
                   << x1 << " "
                   << v0 << " "
                   << v1 << " "
@@ -105,7 +113,7 @@ double Environment::get_inf_vel_heuristic_1d(double x0,
                   << t4 << " "
                   << result << " "
                   << a  << " "
-                  << D << std::endl;
+                  << D);
         throw std::runtime_error("BAD Poly solve");
     }
 
