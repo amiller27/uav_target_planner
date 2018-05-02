@@ -34,12 +34,29 @@ OccupancyGrid::OccupancyGrid(const Bounds& bounds, double dp)
             } \
         } \
     }
+#define FREE(i1, i2, j1, j2, k1, k2) \
+    for (size_t i = i1; i < i2; i++) { \
+        for (size_t j = j1; j < j2; j++) { \
+            for (size_t k = k1; k < k2; k++) { \
+                free(i, j, k); \
+            } \
+        } \
+    }
 
+    // Short wall
     MARK(115, 125, 80, 110, 0, 30);
+
+    // Table
     MARK(80, 110, 105, 115, 3, 10);
+
+    // Wall with door
     MARK(105, 125, 75, 80, 0, 40);
     MARK(40, 90, 75, 80, 0, 40);
     MARK(90, 105, 75, 80, 30, 40);
+    FREE(65, 85, 75, 80, 15, 25);
+
+    // Wall w/o door
+    MARK(40, 125, 45, 50, 0, 40);
 
 #undef MARK
 
