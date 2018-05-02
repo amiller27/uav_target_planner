@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>uav_target_planner</name>
+  <version>0.0.0</version>
+  <description>The uav_target_planner package</description>
+
+  <maintainer email="acmiller273@gmail.com">Aaron Miller</maintainer>
+  <license>GPLv2</license>
+  <author email="acmiller273@gmail.com">Aaron Miller</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <test_depend>gtest</test_depend>
+
+</package>

@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="uav_target_planner" type="uav_target_demo_node" name="demo_node" launch-prefix="" />
+</launch>
