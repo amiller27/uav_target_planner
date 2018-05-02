@@ -21,7 +21,7 @@ class AraStar
     bool search();
     std::vector<Waypoint> get_path();
   private:
-    bool replan(double eps);
+    bool replan(double eps, int round);
 
     double eps_;
     std::shared_ptr<Environment> env_;

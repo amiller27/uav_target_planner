@@ -1,3 +1,5 @@
 <launch>
+    <arg name="goal" default="" />
+    <rosparam command="load" file="$(find uav_target_planner)/param/demo$(arg goal).yaml" />
     <node pkg="uav_target_planner" type="uav_target_demo_node" name="demo_node" launch-prefix="" />
 </launch>

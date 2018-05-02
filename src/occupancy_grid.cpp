@@ -142,6 +142,9 @@ OccupancyGrid::OccupancyGrid(const Bounds& bounds, double dp)
     m.points.clear();
     m.ns = "inflated_occupied_voxels";
     m.color.a = 0.2;
+    m.color.r = 0.5;
+    m.color.g = 0.2;
+    m.color.b = 0.8;
     for (size_t i = 0; i < sx_; i++) {
         for (size_t j = 0; j < sy_; j++) {
             for (size_t k = 0; k < sz_; k++) {

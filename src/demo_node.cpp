@@ -52,20 +52,15 @@ int main(int argc, char* argv[])
     // dv should be 1.0
 
     std::shared_ptr<State> s (new State());
-    s->idx_px = 85;
-    s->idx_py = 65;
-    s->idx_pz = 15;
+    ros::NodeHandle nh;
+
+    nh.getParam("idx_px", s->idx_px);
+    nh.getParam("idx_py", s->idx_py);
+    nh.getParam("idx_pz", s->idx_pz);
     s->idx_vx = 0;
     s->idx_vy = 0;
     s->idx_vz = 0;
     s->idx_t = 0;
-    //s->idx_px = 96;
-    //s->idx_py = 100;
-    //s->idx_pz = 0;
-    //s->idx_vx = 0;
-    //s->idx_vy = 0;
-    //s->idx_vz = 0;
-    //s->idx_t = 0;
 
     env->logger.publish_target(target, 4);
 

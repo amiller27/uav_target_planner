@@ -23,6 +23,7 @@ AraStar::AraStar(double eps,
     start_node->g = 0;
     start_node->f = eps_ * env_->get_heuristic(start_node->state);
     start_node->open = true;
+    start_node->closed = 0;
     open_.push(std::move(start_node));
     nodes.insert({*start_state_, start_node});
 }
@@ -37,13 +38,15 @@ bool AraStar::search()
 
     double eps = eps_;
     bool result = false;
+    int round = 1;
     while (eps > 1.0) {
         eps -= 0.3;
         if (eps < 1.0) eps = 1.0;
 
-        result = replan(eps) || result;
+        result = replan(eps, round) || result;
 
         if (std::chrono::high_resolution_clock::now() > t_stop_) break;
+        round++;
     }
 
     if (result) {
@@ -53,7 +56,7 @@ bool AraStar::search()
     return result;
 }
 
-bool AraStar::replan(double eps)
+bool AraStar::replan(double eps, int round)
 {
 
     {
@@ -82,12 +85,14 @@ bool AraStar::replan(double eps)
     int expansions = 0;
     while (open_.size() != 0) {
         if (std::chrono::high_resolution_clock::now() > t_stop_) {
+            ROS_WARN_STREAM("Expansions: " << expansions);
             ROS_ERROR("OUT OF TIME");
             return false;
         }
 
         if (goal_node_ != nullptr && goal_node_->g <= open_.top()->f) {
             // Done this round
+            ROS_WARN_STREAM("Expansions: " << expansions);
             ROS_WARN("DONE WITH EPS=%f", eps);
             return true;
         }
@@ -97,7 +102,7 @@ bool AraStar::replan(double eps)
         if (s->donezo) continue;
 
         s->open = false;
-        s->closed = true;
+        s->closed = round;
         s->v = s->g;
 
         expansions++;
@@ -125,7 +130,7 @@ bool AraStar::replan(double eps)
         for (auto& e : env_->get_successors(s->state)) {
             bool already_created = (nodes.count(*e.s2) != 0);
             double new_g = s->g + e.cost;
-            if (!already_created || !nodes[*e.s2]->closed) {
+            if (!already_created || nodes[*e.s2]->closed < round) {
                 if (!already_created || new_g < nodes[*e.s2]->g) {
                     std::shared_ptr<Node> node (new Node());
                     node->state = e.s2;
@@ -133,6 +138,7 @@ bool AraStar::replan(double eps)
                     node->f = new_g + eps * env_->get_heuristic(e.s2);
                     node->backp = s;
                     node->open = true;
+                    node->closed = 0;
                     open_.push(node);
 
                     if (already_created) {

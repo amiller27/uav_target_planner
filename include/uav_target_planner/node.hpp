@@ -18,7 +18,7 @@ struct Node
 
     bool open;
     bool donezo;
-    bool closed;
+    int closed;
 };
 
 } // namespace uav_target_planner
