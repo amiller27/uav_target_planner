@@ -61,7 +61,8 @@ target_link_libraries(uav_target_demo_node
 ## Testing ##
 #############
 
-catkin_add_gtest(${PROJECT_NAME}-test test/env_test.cpp)
-if(TARGET ${PROJECT_NAME}-test)
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest_gtest(${PROJECT_NAME}-test launch/gtest.test test/env_test.cpp)
   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
 endif()

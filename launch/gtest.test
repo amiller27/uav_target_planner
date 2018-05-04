@@ -1,0 +1,4 @@
+<launch>
+    <test test-name="Unit-Tests" pkg="uav_target_planner"
+        type="uav_target_planner-test" name="unit_tests" />
+</launch>

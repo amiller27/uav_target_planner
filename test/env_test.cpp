@@ -136,7 +136,7 @@ TEST(EnvironmentTests, testSearchOneStep)
     s->idx_vz = 0;
     s->idx_t = 0;
 
-    AraStar planner (1.0, env, s);
+    AraStar planner (3.0, env, s);
     bool result = planner.search();
     EXPECT_TRUE(result);
 }
@@ -181,7 +181,7 @@ TEST(EnvironmentTests, testHeuristic)
     s->idx_t = 0;
 
     double heur = env->get_heuristic(s);
-    EXPECT_LT(std::abs(heur - std::sqrt(4./5)), 0.001);
+    EXPECT_LT(std::abs(heur - std::sqrt(4./5)), 0.01);
 }
 
 TEST(EnvironmentTests, testSearchStationaryTargetClose)
@@ -223,7 +223,7 @@ TEST(EnvironmentTests, testSearchStationaryTargetClose)
     s->idx_vz = 0;
     s->idx_t = 0;
 
-    AraStar planner (1.0, env, s);
+    AraStar planner (3.0, env, s);
     bool result = planner.search();
     EXPECT_TRUE(result);
 }
@@ -232,6 +232,9 @@ TEST(EnvironmentTests, testSearchStationaryTargetClose)
 
 int main(int argc, char* argv[])
 {
+    ros::init(argc, argv, "unit_tests");
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
+    ros::shutdown();
+    return result;
 }
