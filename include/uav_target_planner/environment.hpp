@@ -29,7 +29,8 @@ class Environment
 
     Logger logger;
   private:
-    std::pair<double, double> dist_to_target(const std::shared_ptr<const State>& s);
+    std::pair<double, double> dist_to_target(
+            const std::shared_ptr<const State>& s);
     bool in_bounds(const Waypoint& w);
     bool collision_free(const std::shared_ptr<const State>& s);
     std::vector<Edge> apply_mprims(const std::shared_ptr<const State>& s);

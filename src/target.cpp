@@ -4,7 +4,6 @@ namespace uav_target_planner {
 
 Waypoint Target::get_waypoint(double t) const
 {
-    // TODO improve this?
     Waypoint result;
     result.t = t;
 

@@ -25,7 +25,7 @@ AraStar::AraStar(double eps,
     start_node->open = true;
     start_node->closed = 0;
     open_.push(std::move(start_node));
-    nodes.insert({*start_state_, start_node});
+    nodes_.insert({*start_state_, start_node});
 }
 
 bool AraStar::search()
@@ -72,12 +72,12 @@ bool AraStar::replan(double eps, int round)
             new_open.push(s);
         }
 
-        for (auto& p : incons) {
+        for (auto& p : incons_) {
             std::shared_ptr<Node> s = p.second;
             s->f = s->g + eps * env_->get_heuristic(s->state);
             new_open.push(s);
         }
-        incons.clear();
+        incons_.clear();
 
         open_.swap(new_open);
     }
@@ -114,11 +114,13 @@ bool AraStar::replan(double eps, int round)
             continue;
         }
 
-        if (env_->is_goal(s->state) && (goal_node_ == nullptr || goal_node_->g > s->g)) {
+        if (env_->is_goal(s->state) && (goal_node_ == nullptr
+                    || goal_node_->g > s->g)) {
             ROS_WARN("GOAL");
             const auto t_end = std::chrono::high_resolution_clock::now();
             ROS_WARN_STREAM("Planning time: "
-                    << std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start_).count()
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(
+                            t_end - t_start_).count()
                     << "ms");
             ROS_WARN_STREAM("Expansions: " << expansions);
             ROS_WARN_STREAM("Cost (s): " << s->g);
@@ -128,10 +130,10 @@ bool AraStar::replan(double eps, int round)
         }
 
         for (auto& e : env_->get_successors(s->state)) {
-            bool already_created = (nodes.count(*e.s2) != 0);
+            bool already_created = (nodes_.count(*e.s2) != 0);
             double new_g = s->g + e.cost;
-            if (!already_created || nodes[*e.s2]->closed < round) {
-                if (!already_created || new_g < nodes[*e.s2]->g) {
+            if (!already_created || nodes_[*e.s2]->closed < round) {
+                if (!already_created || new_g < nodes_[*e.s2]->g) {
                     std::shared_ptr<Node> node (new Node());
                     node->state = e.s2;
                     node->g = new_g;
@@ -143,17 +145,17 @@ bool AraStar::replan(double eps, int round)
 
                     if (already_created) {
                         // Remove node from OPEN
-                        nodes[*e.s2]->donezo = true;
-                        nodes.erase(*e.s2);
+                        nodes_[*e.s2]->donezo = true;
+                        nodes_.erase(*e.s2);
                     }
 
-                    nodes.insert({*e.s2, node});
+                    nodes_.insert({*e.s2, node});
                 }
             } else {
                 // already created and closed
-                nodes[*e.s2]->g = new_g;
-                if (incons.count(*e.s2) == 0) {
-                    incons.insert({*e.s2, nodes[*e.s2]});
+                nodes_[*e.s2]->g = new_g;
+                if (incons_.count(*e.s2) == 0) {
+                    incons_.insert({*e.s2, nodes_[*e.s2]});
                 }
             }
         }

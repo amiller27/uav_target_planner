@@ -31,14 +31,17 @@ class AraStar
     std::function<bool(const std::shared_ptr<const Node>&,
                        const std::shared_ptr<const Node>&)>
         comp_ = [](const std::shared_ptr<const Node>& a,
-                   const std::shared_ptr<const Node>& b) { return a->f > b->f; };
+                   const std::shared_ptr<const Node>& b) {
+            return a->f > b->f;
+        };
+
     std::priority_queue<std::shared_ptr<Node>,
                         std::vector<std::shared_ptr<Node>>,
                         decltype(comp_)>
         open_;
 
-    std::unordered_map<State, std::shared_ptr<Node>> nodes;
-    std::unordered_map<State, std::shared_ptr<Node>> incons;
+    std::unordered_map<State, std::shared_ptr<Node>> nodes_;
+    std::unordered_map<State, std::shared_ptr<Node>> incons_;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> t_start_;
     std::chrono::time_point<std::chrono::high_resolution_clock> t_stop_;

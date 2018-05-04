@@ -17,7 +17,13 @@ struct Node
     std::shared_ptr<const Node> backp;
 
     bool open;
+
+    // This node is Dunzo.  Getting expanded?  Dunzo.  You wanna use me as
+    // part of a path?  Dunzo.  Hey, node, you wanna get used for anything at
+    // all?  No, I'm Dunzo.
     bool donezo;
+
+    // Last search round this node was closed in (0 for never closed)
     int closed;
 };
 

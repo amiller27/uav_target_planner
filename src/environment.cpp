@@ -8,7 +8,8 @@ namespace uav_target_planner {
 
 // PRIVATE METHODS
 
-std::pair<double, double> Environment::dist_to_target(const std::shared_ptr<const State>& s)
+std::pair<double, double> Environment::dist_to_target(
+        const std::shared_ptr<const State>& s)
 {
     Waypoint w = get_waypoint(s);
     return dist(w, target_->get_waypoint(w.t));
@@ -132,7 +133,6 @@ double Environment::get_inf_vel_heuristic(const std::shared_ptr<const State>& s)
         if (max_t < (t - w.t)) return t - w.t;
     }
 
-    throw std::runtime_error("Not enough time");
     return std::numeric_limits<double>::infinity();
 }
 

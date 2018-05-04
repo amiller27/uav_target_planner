@@ -41,7 +41,7 @@ class Logger
 
     Waypoint start_w_;
     Waypoint goal_w_;
-    bool have_goal_ = false;
+    bool have_goal_;
 };
 
 } // namespace uav_target_planner

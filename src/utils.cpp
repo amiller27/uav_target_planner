@@ -9,7 +9,8 @@ namespace uav_target_planner {
 
 Logger::Logger()
     : nh_(),
-      marker_pub_(nh_.advertise<visualization_msgs::Marker>("markers", 10))
+      marker_pub_(nh_.advertise<visualization_msgs::Marker>("markers", 10)),
+      have_goal_(false)
 {
 }
 

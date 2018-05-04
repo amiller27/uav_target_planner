@@ -47,10 +47,15 @@ template<> struct hash<uav_target_planner::State>
 
 }
 
-inline std::ostream& operator<<(std::ostream& os, const uav_target_planner::State& s)
+inline std::ostream& operator<<(std::ostream& os,
+                                const uav_target_planner::State& s)
 {
-    os << "P: " << s.idx_px << ",\t" << s.idx_py << ",\t" << s.idx_pz << std::endl
-       << "V: " << s.idx_vx << ",\t" << s.idx_vy << ",\t" << s.idx_vz << std::endl
+    os << "P: " << s.idx_px << ",\t"
+                << s.idx_py << ",\t"
+                << s.idx_pz << std::endl
+       << "V: " << s.idx_vx << ",\t"
+                << s.idx_vy << ",\t"
+                << s.idx_vz << std::endl
        << "T: " << s.idx_t << std::endl;
     return os;
 }

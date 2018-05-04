@@ -30,7 +30,8 @@ inline std::pair<double, double> dist(const Waypoint& w1, const Waypoint& w2)
 
 } // namespace uav_target_planner
 
-inline std::ostream& operator<<(std::ostream& os, const uav_target_planner::Waypoint& w)
+inline std::ostream& operator<<(std::ostream& os,
+                                const uav_target_planner::Waypoint& w)
 {
     os << "P: " << w.px << ",\t" << w.py << ",\t" << w.pz << std::endl
        << "V: " << w.vx << ",\t" << w.vy << ",\t" << w.vz << std::endl
